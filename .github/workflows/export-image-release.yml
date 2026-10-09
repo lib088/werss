@@ -1,0 +1,41 @@
+name: Export WeRSS image
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Pull built image
+        run: docker pull ghcr.io/lib088/werss:latest
+
+      - name: Export and compress image
+        run: |
+          docker save ghcr.io/lib088/werss:latest | gzip -1 > werss-amd64.tar.gz
+          sha256sum werss-amd64.tar.gz > werss-amd64.tar.gz.sha256
+          ls -lh werss-amd64.tar.gz
+
+      - name: Publish downloadable release asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="werss-image-current"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" werss-amd64.tar.gz werss-amd64.tar.gz.sha256 --clobber
+          else
+            gh release create "$TAG" \
+              werss-amd64.tar.gz \
+              werss-amd64.tar.gz.sha256 \
+              --target "${GITHUB_SHA}" \
+              --title "WeRSS Docker image" \
+              --notes "Prebuilt linux/amd64 WeRSS Docker image for direct download and docker load."
+          fi
