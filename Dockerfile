@@ -8,7 +8,7 @@ FROM --platform=$BUILDPLATFORM node:20.18.0-slim AS frontend-builder
 WORKDIR /app
 
 # 安装 pnpm
-RUN npm install -g pnpm
+RUN npm install -g pnpm@9.15.9
 
 # 复制前端依赖文件
 COPY web_ui/package.json web_ui/pnpm-lock.yaml* web_ui/
