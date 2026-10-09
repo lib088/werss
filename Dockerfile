@@ -37,6 +37,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     ca-certificates \
+    git \
+    build-essential \
+    zlib1g-dev \
+    libgdbm-dev \
+    libnss3-dev \
+    libssl-dev \
+    libreadline-dev \
+    libffi-dev \
+    libsqlite3-dev \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # 设置时区
